@@ -15,7 +15,8 @@ using namespace myOut;
 void MainWindow::customFunc()
 {
     ui->matiCheckBox->setChecked(false);
-	ui->realsButton->setChecked(true);
+//	ui->realsButton->setChecked(true);
+	ui->pauseRadioButton->setChecked(true);
 #if ELENA_VARIANT
 	ui->elenaSliceCheckBox->setChecked(true); // Elena
 	ui->eogBipolarCheckBox->setChecked(false); // Elena

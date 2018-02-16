@@ -193,8 +193,9 @@ namespace def
 #if ELENA_VARIANT
 //	const QString dataFolder = "C:/Michael/Data";
 #else
-    const QString dataFolder = "/media/Files/Data";
+//    const QString dataFolder = "/media/Files/Data";
 //	const QString dataFolder = "D:/MichaelAtanov/workData"; // on O.D. comp
+	const QString dataFolder = "D:/PolinaData";
 #endif
     const QString XeniaFolder = "/media/Files/Data/Xenia";
     const QString mriFolder = "/media/Files/Data/MRI";

@@ -30,6 +30,7 @@ MainWindow::MainWindow() :
 	group2 = new QButtonGroup(this);
     group2->addButton(ui->windsButton);
 	group2->addButton(ui->realsButton);
+	group2->addButton(ui->pauseRadioButton);
 
 	ui->drawCoeffSpinBox->setValue(1.0);
 	ui->drawCoeffSpinBox->setSingleStep(0.1);

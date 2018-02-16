@@ -31,6 +31,10 @@ void MainWindow::sliceAll() /////// aaaaaaaaaaaaaaaaaaaaaaaaaa//////////////////
 				sliceWinds();
 //				sliceJustWinds(); /// IITP
 			}
+			else if(ui->pauseRadioButton->isChecked())
+			{
+				PausePieces();
+			}
 			else if(ui->realsButton->isChecked())
 			{
 				if(ui->reduceChannelsComboBox->currentText().contains("MichaelBak")) // generality
@@ -972,4 +976,68 @@ void MainWindow::sliceMatiPieces(bool plainFlag)
         }
     }
 	std::cout << "sliceMatiPieces: time = " << myTime.elapsed() / 1000. << " sec" << std::endl;
+}
+
+
+//ans/noans
+void MainWindow::PausePieces()
+{
+QString helpString;
+	int j = 0;
+	char h = 0;
+	int piece = 0;
+	QString marker = "000";
+	const edfFile & fil = globalEdf;
+	//const std::vector<std::pair<int, int>> & markers = fil.getMarkers();
+	const std::valarray<double> & markChanArr = fil.getData()[fil.getMarkChan()];
+	std::ifstream fin((def::dirPath()
+					  + "/"
+					  + def::ExpName.left(def::ExpName.indexOf("_"))
+					  + "_ans1.txt").toStdString());
+	for(int i = 0; i < fil.getDataLen(); ++i)
+	{
+	   if(markChanArr[i] == 254)
+		{
+			j = i;
+			fin >> h;
+			while (h != '0' && h != '1' && h != '2')
+			{
+				fin >> h;
+			}
+		   if(h == '0')
+		   {
+			   marker = "261";
+		   }
+		   else if(h == '1' || h == '2')
+		   {
+			   marker = "260";
+		   }
+		   continue;
+		}
+		else if(markChanArr[i] == 255)
+		{
+			//i=i+1?
+			helpString = def::dirPath()
+						 + "/Pause"
+						 + "/" + def::ExpName
+						 + "." + rn(piece, 4);
+			if(i > j)
+			{
+				if(i - j <= def::freq * 62)
+				{
+					helpString += "_" + marker;
+					fil.saveSubsection(j, i, helpString);
+				}
+				++piece;
+			}
+	   }
+	   ui->progressBar->setValue(i * 100. / fil.getDataLen());
+
+	   qApp->processEvents();
+	   if(stopFlag)
+	   {
+		   stopFlag = 0;
+		   break;
+	   }
+	}
 }
