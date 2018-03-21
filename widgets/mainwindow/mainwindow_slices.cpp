@@ -3,6 +3,7 @@
 
 #include <myLib/mati.h>
 #include <myLib/dataHandlers.h>
+#include <functional>
 
 using namespace myOut;
 
@@ -33,7 +34,12 @@ void MainWindow::sliceAll() /////// aaaaaaaaaaaaaaaaaaaaaaaaaa//////////////////
 			}
 			else if(ui->pauseRadioButton->isChecked())
 			{
-				PausePieces();
+				bool  a = ui->RightWrongCheckBox->isChecked();
+				PausePieces(a);
+			}
+			else if(ui->pause2RadioButton->isChecked())
+			{
+				PausePiecesII();
 			}
 			else if(ui->realsButton->isChecked())
 			{
@@ -980,10 +986,17 @@ void MainWindow::sliceMatiPieces(bool plainFlag)
 
 
 //ans/noans
-void MainWindow::PausePieces()
+void MainWindow::PausePieces(bool a)
 {
 QString helpString;
-	int j = 0;
+	std::function<bool(char)>cond1;
+	std::function<bool(char)>cond2;
+	std::function<bool(char)>cond3;
+	QString mark1;
+	QString mark2;
+	QString mark3;
+	int start = 0;
+	int end = -1;
 	char h = 0;
 	int piece = 0;
 	QString marker = "000";
@@ -994,39 +1007,133 @@ QString helpString;
 					  + "/"
 					  + def::ExpName.left(def::ExpName.indexOf("_"))
 					  + "_ans1.txt").toStdString());
+	if (a) //right/wrong in ==true
+	{
+		cond1 = [](char a) -> bool {return a == '0';};
+		mark1 = "261";
+		cond2 = [](char a) -> bool {return a == '1';};
+		mark2 = "262";
+		cond3 = [](char a) -> bool {return a == '2';};
+		mark3 = "263";
+	}
+	else //ans/noans
+	{
+		cond1 = [](char a) -> bool {return a == '0';};
+		mark1 = "261";
+		cond2 = [](char a) -> bool {return a == '1' || a == '2';};
+		mark2 = "260";
+		cond3 = [](char a) -> bool {return true;};
+		mark3 = "000";
+	}
 	for(int i = 0; i < fil.getDataLen(); ++i)
 	{
 	   if(markChanArr[i] == 254)
 		{
-			j = i;
+			start = i;
 			fin >> h;
-			while (h != '0' && h != '1' && h != '2')
+			if (cond1(h))
 			{
-				fin >> h;
+				marker = mark1;
 			}
-		   if(h == '0')
-		   {
-			   marker = "261";
-		   }
-		   else if(h == '1' || h == '2')
-		   {
-			   marker = "260";
-		   }
+			else if	(cond2(h))
+			{
+				marker = mark2;
+			}
+			else if	(cond3(h))
+			{
+				marker = mark3;
+			}
+//			while (h != '0' && h != '1' && h != '2')
+//			{
+//				fin >> h;
+//			}
+//		   if(h == '0')
+//		   {
+//			   marker = "261";
+//		   }
+//		   else if(h == '1' || h == '2')
+//		   {
+//			   marker = "260";
+//		   }
 		   continue;
 		}
 		else if(markChanArr[i] == 255)
 		{
-			//i=i+1?
+			end=i;
 			helpString = def::dirPath()
-						 + "/Pause"
+						 + "/Reals"
 						 + "/" + def::ExpName
 						 + "." + rn(piece, 4);
-			if(i > j)
+			if(end > start)
 			{
-				if(i - j <= def::freq * 62)
+				if(end - start <= def::freq * 62)
 				{
 					helpString += "_" + marker;
-					fil.saveSubsection(j, i, helpString);
+					fil.saveSubsection(start, end, helpString, true);
+				}
+				++piece;
+			}
+	   }
+	   ui->progressBar->setValue(i * 100. / fil.getDataLen());
+
+	   qApp->processEvents();
+	   if(stopFlag)
+	   {
+		   stopFlag = 0;
+		   break;
+	   }
+	}
+}
+
+
+void MainWindow::PausePiecesII()
+{
+	QString helpString;
+
+	int start = 0;
+	int end = -1;
+	char h = 0;
+	int piece = 0;
+	QString marker = "000";
+	const edfFile & fil = globalEdf;
+	const std::valarray<double> & markChanArr = fil.getData()[fil.getMarkChan()];
+	std::ifstream fin((def::dirPath()
+					  + "/"
+					  + def::ExpName.left(def::ExpName.indexOf("_"))
+					  + "_ans1.txt").toStdString());
+//	std::function<bool(char)>cond1 = [](char a) -> bool { return a == '0'; };
+//	std::function<bool(char)>cond2 = [](char a) -> bool { return a == '1'; };
+//	std::function<bool(char)>cond3 = [](char a) -> bool { return a == '2'; };
+	const std::vector<std::vector<QString>> mark {{"271", "272", "273"},
+												  {"281", "282", "283"}};
+	std::vector<QString> markLine;
+	for(int i = 0; i < fil.getDataLen(); ++i)
+	{
+		if (markChanArr[i] == 241 || markChanArr[i] == 247)
+		{
+			markLine = mark[int(markChanArr[i] == 247)];
+			continue;
+		}
+		else if(markChanArr[i] == 254)
+		{
+			start = i;
+			fin >> h;
+			marker = markLine[QString(h).toInt()];
+			continue;
+		}
+		else if(markChanArr[i] == 255)
+		{
+			end = i;
+			helpString = def::dirPath()
+						 + "/Reals"
+						 + "/" + def::ExpName
+						 + "." + rn(piece, 4);
+			if(end > start)
+			{
+				if(end - start <= def::freq * 62)
+				{
+					helpString += "_" + marker;
+					fil.saveSubsection(start, end, helpString, true);
 				}
 				++piece;
 			}

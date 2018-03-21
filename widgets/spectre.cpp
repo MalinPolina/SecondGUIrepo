@@ -785,6 +785,7 @@ void Spectre::countSpectra()
 							//                     ,{def::plainDataExtension}
 							);
 	const int numFiles = lst.length();
+	std::cout << numFiles << std::endl;
 
 	matrix dataIn;
 	QString helpString;

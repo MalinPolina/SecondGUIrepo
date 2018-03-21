@@ -31,6 +31,8 @@ MainWindow::MainWindow() :
     group2->addButton(ui->windsButton);
 	group2->addButton(ui->realsButton);
 	group2->addButton(ui->pauseRadioButton);
+	group2->addButton(ui->pause2RadioButton);
+
 
 	ui->drawCoeffSpinBox->setValue(1.0);
 	ui->drawCoeffSpinBox->setSingleStep(0.1);
@@ -75,6 +77,7 @@ MainWindow::MainWindow() :
     ui->windowLengthSpinBox->setSingleStep(0.1);
     ui->windowLengthSpinBox->setValue(4);
     ui->realsButton->setChecked(true);
+	ui->RightWrongCheckBox->setChecked(true);
 
     if(def::OssadtchiFlag)
     {

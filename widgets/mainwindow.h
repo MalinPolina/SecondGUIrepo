@@ -89,7 +89,8 @@ public:
     void sliceOneByOne();
 	void sliceOneByOneNew();
 	void sliceElena();
-	void PausePieces();
+	void PausePieces(bool);
+	void PausePiecesII();
 
 
 	void setEdfFile(const QString & filePath);

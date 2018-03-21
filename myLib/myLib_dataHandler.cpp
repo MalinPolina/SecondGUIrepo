@@ -84,11 +84,11 @@ void makeFullFileList(const QString & path,
 
 			}
 		}
-//		std::cout << nameFilters << std::endl;
+		//std::cout << nameFilters << std::endl;
 		lst = localDir.entryList(nameFilters,
 								 QDir::Files,
 								 QDir::Name); /// Name ~ order
-//		std::cout << lst.size() << std::endl;
+		std::cout << lst.size() << std::endl;
 	}
 }
 

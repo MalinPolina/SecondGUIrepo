@@ -21,6 +21,55 @@ void MainWindow::customFunc()
 	ui->elenaSliceCheckBox->setChecked(true); // Elena
 	ui->eogBipolarCheckBox->setChecked(false); // Elena
 #endif
+
+#if Polina ||	1
+	{
+
+		const QString path = "D:/PolinaData";
+		const QStringList names {"BAM", "BAV", "DEG", "ENV", "IAE", "KKS", "KNL", "MID", "MII", "MSM", "NUA", "PDI", "SAA", "SAV", "SKI", "SRV", "TAA", "TihAA", "UIA"};
+		const QString suff {"_1_fin"};
+		const std::vector<QString> compositions {
+			{"_271; _281; _272; _282; _273; _283"}, //все отдельно
+			{"_271 _281; _272; _282; _273; _283"}, //неответы/остальное отдельно
+			{"_271 _281; _272 _282; _273 _283"}, //неответы/правильно/неправильно
+			{"_271 _281; _272 _282 _273 _283"}, //неответы/ответы
+			{"_271 _281 _272 _282; _273 _283"}, //неответы и правильно/неправильно
+			{"_271 _281 _273 _283; _272 _282"}, //неответы и неправильно/правильно
+			{"_271 _272 _273; _281 _282 _283"}, //класс1/класс2
+			{"_271 _281; _272 _273; _282 _283"}}; //неответы/ответы кл1/ответы кл2
+		std::ofstream Table("D:/PolinaData/Table.txt");
+		Table.precision(3);
+		for(QString name : names)
+
+		{
+			setEdfFile(path + "/" + name + "/" + name + suff + ".edf");
+			PausePiecesII();
+			ui->fileMarkersLineEdit->setText(compositions[0]);
+			ui->fileMarkersLineEdit->editingFinished();
+			countSpectraSimple(4096);
+
+			for(QString composition: compositions)
+			{
+				ui->fileMarkersLineEdit->setText(composition);
+				ui->fileMarkersLineEdit->editingFinished();
+				Net * net = new Net();
+				net->loadData(path + "/" + name + "/SpectraSmooth");
+				std::cout << name << std::endl;
+				net->setClassifier(ModelType::ANN);
+				net->setMode("N");//???
+				net->setSource("w");
+				//net->setNumOfPairs(30);
+				//net->setFold(4);
+				auto result = net->autoClassification();
+				Table << result.first << '\t';
+				delete net;
+			}
+			Table << std::endl;
+		}
+		Table.close();
+	}
+
+#endif
 //	testNewClassifiers();
 //	testSuccessive();
 //	exit(0);

@@ -569,13 +569,13 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>284</x>
       <y>73</y>
       <width>771</width>
-      <height>89</height>
+      <height>100</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout">
@@ -656,6 +656,20 @@
         <widget class="QRadioButton" name="pauseRadioButton">
          <property name="text">
           <string>Pause</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="RightWrongCheckBox">
+         <property name="text">
+          <string>RightWrong</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="pause2RadioButton">
+         <property name="text">
+          <string>PauseTask</string>
          </property>
         </widget>
        </item>
