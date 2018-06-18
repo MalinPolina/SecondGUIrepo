@@ -29,16 +29,21 @@ void MainWindow::customFunc()
 		const QStringList names {"BAM", "BAV", "DEG", "ENV", "IAE", "KKS", "KNL", "MID", "MII", "MSM", "NUA", "PDI", "SAA", "SAV", "SKI", "SRV", "TAA", "TihAA", "UIA"};
 		const QString suff {"_1_fin"};
 		const std::vector<QString> compositions {
-			{"_271; _281; _272; _282; _273; _283"}, //все отдельно
-			{"_271 _281; _272; _282; _273; _283"}, //неответы/остальное отдельно
-			{"_271 _281; _272 _282; _273 _283"}, //неответы/правильно/неправильно
-			{"_271 _281; _272 _282 _273 _283"}, //неответы/ответы
-			{"_271 _281 _272 _282; _273 _283"}, //неответы и правильно/неправильно
-			{"_271 _281 _273 _283; _272 _282"}, //неответы и неправильно/правильно
-			{"_271 _272 _273; _281 _282 _283"}, //класс1/класс2
-			{"_271 _281; _272 _273; _282 _283"}}; //неответы/ответы кл1/ответы кл2
-		std::ofstream Table("D:/PolinaData/Table.txt");
-		Table.precision(3);
+			{"_271; _281; _272; _282; _273"}, //все отдельно
+			{"_271 _281; _272; _282; _273"}, //неответы/остальное отдельно
+			{"_271 _281; _272 _282; _273"}, //неответы/правильно/неправильно
+			{"_271 _281; _272 _282 _273"}, //неответы/ответы
+			{"_271 _281 _272 _282; _273"}, //неответы и правильно/неправильно
+			{"_271 _281 _273; _272 _282"}, //неответы и неправильно/правильно
+			{"_271 _272 _273; _281 _282"}, //класс1/класс2
+			{"_271 _281; _272 _273; _282"} //неответы/ответы кл1/ответы кл2
+		};
+		std::ofstream table("D:/PolinaData/Table.txt");
+		table.precision(3);
+
+		std::ofstream dice("D:/PolinaData/Dice.txt");
+		dice.precision(3);
+
 		for(QString name : names)
 
 		{
@@ -56,17 +61,50 @@ void MainWindow::customFunc()
 				net->loadData(path + "/" + name + "/SpectraSmooth");
 				std::cout << name << std::endl;
 				net->setClassifier(ModelType::ANN);
-				net->setMode("N");//???
+				net->setMode("N");
 				net->setSource("w");
 				//net->setNumOfPairs(30);
 				//net->setFold(4);
 				auto result = net->autoClassification();
-				Table << result.first << '\t';
+				//std::pair<double, double> result{50., 0.5};
+				table << result.first << '\t';
+
+				auto n = net->getClassifierData().getNumVectors();
+				auto kreal = result.first * n / 100;
+				int semicolon = composition.count(';');
+				double p = 1. / (semicolon + 1);
+				std::cout << n << "\t" << kreal << std::endl;
+
+
+
+
+//				int kreal = 28;
+//				int n = 80;
+//				p = 1. / 6;
+				double sum = 0.;
+				for (int k = kreal; k <= n; ++k)
+				{
+					double coin = std::pow(1 - p, n - k) * std::pow(p, k);
+					for (int i = 0; i < std::min(k, n-k); ++i)
+					{
+						coin *= (n - i);
+						coin /= (i + 1);
+					}
+					//auto coin = myLib::combination(k, n)* std::pow(1 - p, n - k) * std::pow(p, k);
+					sum += coin;
+				}
+				dice << std::scientific;
+				dice << sum << '\t';
+				dice.flush();
+
 				delete net;
+
 			}
-			Table << std::endl;
+			table << std::endl;
+			dice << std::endl;
 		}
-		Table.close();
+		table.close();
+		dice.close();
 	}
 
 #endif
